@@ -1,0 +1,36 @@
+# this function exists solely for debugging purposes and prints the currently set include directories
+function(print_includes target)
+    get_property(dirs TARGET ${target} PROPERTY INCLUDE_DIRECTORIES)
+    foreach(dir ${dirs})
+      message(STATUS "dir='${dir}'")
+    endforeach()
+endfunction(print_includes)
+
+
+function(get_includes variable targets)
+    set(ALL_INCLUDE_DIRS "")
+    foreach(target ${targets})
+        get_property(INCLUDE_DIRS TARGET ${target} PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+        set(ALL_INCLUDE_DIRS ${ALL_INCLUDE_DIRS} ${INCLUDE_DIRS})
+    endforeach()
+    set(${variable} ${ALL_INCLUDE_DIRS} PARENT_SCOPE)
+endfunction(get_includes)
+
+function(copy_file_list FILE_LIST SOURCE TARGET)
+    foreach( FILE_NAME ${FILE_LIST})
+        configure_file(${SOURCE}/${FILE_NAME} ${TARGET}/${FILE_NAME} COPYONLY)
+    endforeach( FILE_NAME )
+endfunction(copy_file_list)
+
+function(space_separated_list SOURCE_VAR TARGET_VAR)
+    string (REPLACE ";" " " SPLIT "${${SOURCE_VAR}}")
+    set(${TARGET_VAR} ${SPLIT} PARENT_SCOPE)
+endfunction(space_separated_list)
+
+function(prepend PREFIX SOURCE_VAR TARGET_VAR)
+    SET(listVar "")
+    foreach(f ${${SOURCE_VAR}})
+        LIST(APPEND listVar "${PREFIX}/${f}")
+    endforeach(f)
+    SET(${TARGET_VAR} "${listVar}" PARENT_SCOPE)
+endfunction(prepend)

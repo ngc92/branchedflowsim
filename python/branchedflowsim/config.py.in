@@ -1,0 +1,40 @@
+potgen_exe = '@CMAKE_INSTALL_PREFIX@/bin/potgen'
+trace_exe  = '@CMAKE_INSTALL_PREFIX@/bin/tracer'
+
+"""
+This directory will be used as working directory for intermediate files unless an explicit directory is passed.
+Functions needing a work directory should call `get_workdir()` with the supplied directory, so they automatically
+default to the one presented here.
+"""
+DEFAULT_WORKDIR = "@PYTHON_DEFAULT_WORK_DIR@"
+
+def get_workdir(work_dir):
+    """
+    If `work_dir` is `None`, return the default working directory, otherwise
+    return `work_dir`.
+    """
+    if work_dir is None:
+        return DEFAULT_WORKDIR
+    else:
+        return work_dir
+
+"""
+Set this to `True` to enable profiling. `potgen` will then print profiling information.
+"""
+DEFAULT_ENABLE_PROFILE = False
+
+
+"""
+How many thread to use in ffts.
+"""
+DEFAULT_FFT_THREADS = @PYTHON_DEFAULT_FFT_THREADS@
+
+"""
+Set this to `False` to disable using fftw wisdom.
+"""
+DEFAULT_USE_FFTW_WISDOM = True
+
+"""
+Maximum number of elements of numpy arrays that will be serialized to json in experiment configs.
+"""
+MAXIMUM_NUMPY_JSON = 100

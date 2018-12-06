@@ -1,0 +1,1 @@
+potgen -s 128 -d 2 --seed 25 -l 0.01 --derivative-order 1 --output pot_2d_128_ref

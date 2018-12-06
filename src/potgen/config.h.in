@@ -1,0 +1,8 @@
+#ifndef CONFIG_H_INCLUDED
+#define CONFIG_H_INCLUDED
+
+// global configuration variables
+#define WISDOM_FILENAME "${FFTW_WISDOM_FILENAME}"
+#define TEST_DATA_DIRECTORY "${TEST_DATA_DIRECTORY}"
+
+#endif
