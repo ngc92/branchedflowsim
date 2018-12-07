@@ -1,0 +1,82 @@
+# TODO figure out how to use a local image here. 
+# in general, figure out what is actually going on in these processes
+image: ubuntu
+
+cache:
+  key: apt-cache
+  paths:
+  - apt-cache/
+
+before_script:
+  - export APT_CACHE_DIR=`pwd`/apt-cache && mkdir -pv $APT_CACHE_DIR
+  - apt-get update -qy
+  - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -qy fftw3 python-pip libboost-program-options-dev gdb
+
+build_with_docs:
+  stage: build
+  script:
+    # texlive takes a long time, and we only need it for building. Also doxygen and dev versions of libraries are
+    # only needed for build.
+    - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -qy doxygen texlive libfftw3-dev libboost-all-dev g++ cmake
+    - pip install virtualenv sphinx
+    - virtualenv install
+    - source ./install/bin/activate
+    - ./install.sh
+  # it seems artifacts are a way to ensure that the test executables are passed on to the 
+  # next stage
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - ./install
+  # building docs requires setting up texlive - so we only do it for master. The other branches to a 
+  # simple build.
+  only:
+    - master
+
+build:
+  stage: build
+  script:
+    - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -qy libfftw3-dev libboost-all-dev g++ cmake
+    - pip install virtualenv sphinx
+    - virtualenv install
+    - source ./install/bin/activate
+    - ./install.sh
+  # it seems artifacts are a way to ensure that the test executables are passed on to the 
+  # next stage
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - ./install
+  except:
+    - master
+
+# run tests using the binary built before
+test:
+  stage: test
+  script:
+    - source ./install/bin/activate
+    - mkdir test-results
+    - ls
+    # run the unit tests. Set verbose log level
+    - export BOOST_TEST_LOG_LEVEL=test_suite
+    - ./install/bin/test/common_test>test-results/common.txt
+    - ./install/bin/test/potgen_test>test-results/potgen.txt
+    - ./install/bin/test/tracer_test>test-results/tracer.txt
+    - pip install pytest mock
+    - py.test ./install/lib/python2.7/site-packages/branchedflowsim
+  artifacts:
+    paths:
+      - test-results
+    expire_in: 1 week
+    when: always
+    name: test-results
+pages:
+  stage: deploy
+  script:
+    - mkdir public
+    - cp -r ./install/share/doc/branchedflowsim/html/* public
+  artifacts:
+    paths:
+    - public
+  only:
+    - master

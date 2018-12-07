@@ -1,0 +1,8 @@
+*.pyc
+build
+*.o
+*.s
+*.ii
+*.depend
+*.layout
+cmake-build-*
